@@ -1,0 +1,62 @@
+
+<!doctype html>
+<html>
+  <head>
+    <title>Tag your Stars!</title>
+
+    <link rel="stylesheet" href="lib/taggle.min.css">
+    <link rel="stylesheet" href="popup.css">
+
+    <script src="lib/rivets.bundled.min.js"></script>
+    <script src="lib/taggle.min.js"></script>
+
+    <script src="common.js"></script>
+    <script src="popup.js"></script>
+
+  </head>
+  <body>
+    <div id="app-unknown" class="loading" rv-class-loading="0">
+      <p>Use this extension on GitHub <b>project page</b> or your <a href="https://github.com/stars" target="_blank"><b>Stars</b></a> page.</p>
+    </div>
+
+    <div id="app-project" class="loading" rv-class-loading="0">
+      <h2>{title}</h2>
+      <div class="input textarea clearfix tags"></div>
+    </div>
+
+    <div id="app-stars" class="loading" rv-class-loading="0">
+      <h2>Starred projects</h2>
+
+      <select rv-value="sortBy" rv-on-change="refreshFiltering">
+        <option value="">Don't sort</option>
+        <option value="name">Name</option>
+        <option value="tagCount" rv-if="filter | not 'untagged'">Tag count</option>
+      </select>
+
+      <select rv-value="filter" rv-on-change="refreshFiltering">
+        <option value="">Show all</option>
+        <option value="untagged">Untagged</option>
+        <option value="tagged">Tagged</option>
+      </select>
+
+      <input type="text" rv-value="textFilter" rv-on-input="refreshFiltering">
+
+      {filteredRepos | length}
+
+      <table class="repo-table">
+        <tr rv-each-repo="filteredRepos" class="repo">
+          <td>{repo.projectName}</td>
+          <td>
+            <button rv-if="repo.isTagged" rv-on-click="toggleTag">tag</button>
+            <div rv-if="repo.isTagging">
+              taggle here! probably setup through custom component in rivets
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div id="logs"></div>
+  </body>
+</html>
+
