@@ -2,6 +2,7 @@
 
 const gulp = require('gulp')
 const ts = require('gulp-typescript')
+const clean = require('gulp-clean')
 
 const Path = {
   tsConfig: 'tsconfig.json',
@@ -34,6 +35,11 @@ gulp.task('watch', () => {
   })
 })
 
-gulp.task('build', ['copy_assets', 'compile'])
+gulp.task('clean', () => 
+  gulp.src(Path.outDir, {read: false})
+    .pipe(clean())
+)
+
+gulp.task('build', ['clean', 'copy_assets', 'compile'])
 
 gulp.task('default', ['build', 'watch'])
