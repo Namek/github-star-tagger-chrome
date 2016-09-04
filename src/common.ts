@@ -64,7 +64,7 @@ class DataStorage {
   getProject(projectName) {
     return this.loaded.then(() => {
       let project = this.projects[projectName]
-      
+
       if (!project) {
         project = this.projects[projectName] = {tags: []}
       }
@@ -193,7 +193,7 @@ function xhrJson(method, url, data = undefined) {
       resolve(response)
     }
     x.onerror = () => reject('network error')
-    x.send()    
+    x.send()
   })
 }
 

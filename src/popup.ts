@@ -94,7 +94,7 @@ class StarsPage {
       }
       else
         throw new Error('unknown sort type: ${sortBy}')
-      
+
       els.sort(sortFn)
     }
 
@@ -109,13 +109,13 @@ class StarsPage {
 
 class UnknownPage {
   constructor() {
-    
+
   }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
   rivets.formatters['not'] = (val) => !val
-  rivets.formatters['length'] = val => val.length 
+  rivets.formatters['length'] = val => val.length
 
   rivets.configure({
     handler: function(context, ev, binding) {
@@ -194,8 +194,7 @@ function log(text) {
   try {
     text = typeof (text) == 'object' ? JSON.stringify(text) : text
   }
-  catch (err) {} 
+  catch (err) {}
   el.textContent = ''+text
   $id('logs').appendChild(el)
 }
-
