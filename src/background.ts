@@ -17,8 +17,21 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     return true
   }
   else if (request.type == SAVE_TAGS) {
-    storage.setProjectTags(request.projectName, request.tags)
-      .then(refreshState)
+    const {projectName, tags} = request
+
+    storage.setProjectTags(projectName, tags).then(() => {
+      // we also need to update cache!
+      cache.get(CACHE_ALL_REPOS).then((repos: IUserProject[]) => {
+        for (let repo of repos) {
+          if (repo.projectName == projectName) {
+            repo.tags = tags
+            break
+          }
+        }
+
+        refreshState()
+      })
+    })
   }
   else {
     console.error(`unknown message: ${JSON.stringify(request)}`)

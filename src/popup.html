@@ -52,22 +52,23 @@
         <div class="repo"
           rv-each-repo="filteredRepos" class="repo"
           rv-class-expanded="repo.isExpanded"
-          rv-on-click="toggleTag | args repo"
         >
           <span class="repo-name">{repo.projectName}</span>
-
           <span class="repo-tags-count" rv-if="repo.tags | length">{repo.tags | length}</span>
+          <div class="touch-region" rv-on-click="toggleTag | args repo"></div>
 
           <div class="repo-btns" rv-if="repo.isExpanded">
-            {repo.tags | length}
             <span class="tag" rv-each-tag="tags">{tag}</span>
 
-              taggle here! probably setup through custom component in rivets
+            <div class="input textarea clearfix tags"
+              rv-repo-taggle="repo"
+              rv-on-retagged="saveRepoTags"
+            ></div>
 
-            <a
+            <a class="repo-open-link"
               rv-attr-href="'https://github.com/' | append repo.projectName"
-              rv-attr-title="repo.projectName"
-              target="_blank">open</a>
+              rv-attr-title="'https://github.com/' | append repo.projectName"
+              target="_blank">open project page</a>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@
 Tag your Starred projects on GitHub!
 
 ![Tagging](https://namek.github.io/github-star-tagger-chrome/screenshots/tagging.png)
+![Starred projects](https://namek.github.io/github-star-tagger-chrome/screenshots/stars.png)
 
 ## Features:
 * list, sort and filter starred projects on github.com/stars

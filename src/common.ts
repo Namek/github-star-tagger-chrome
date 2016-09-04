@@ -6,6 +6,9 @@ const SAVE_TAGS = 'save_tags'
 const GET_TAGS = 'get_tags'
 const GET_ALL_USER_PROJECTS = 'get_all_user_projects'
 
+// cache
+const CACHE_ALL_REPOS = 'all_repos'
+
 
 declare interface IUserProject {
   user: string
@@ -126,7 +129,7 @@ class DataCache {
 
 // both starred and tagged (some could not appear on starred projects list)
 function getAllUserProjects(username): Promise<Array<{}>> {
-  return cache.get('all_repos')
+  return cache.get(CACHE_ALL_REPOS)
     .then((repos) => {
       if (repos !== undefined)
         return repos

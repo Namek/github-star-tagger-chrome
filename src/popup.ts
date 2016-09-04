@@ -113,6 +113,23 @@ class StarsPage {
   toggleTag = (repo) => {
     repo.isExpanded = !repo.isExpanded
   }
+
+  saveRepoTags = (evt: CustomEvent, that: StarsPage) => {
+    const {projectName, tags} = evt.detail
+
+    chrome.runtime.sendMessage({
+      type: SAVE_TAGS,
+      projectName,
+      tags
+    })
+
+    for (let repo of that.repos) {
+      if (repo.projectName == projectName) {
+        repo.tags = tags
+        break
+      }
+    }
+  }
 }
 
 class UnknownPage {
@@ -143,6 +160,41 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     else {
       el.removeAttribute(attrToSet);
+    }
+  }
+
+  rivets.binders['repo-taggle'] = function(el, repo) {
+    // Note: `rv-if` doesn't really delete elements, it rather removes them
+    // from DOM and brings back in the same state later.
+    // That's why we need to remove all children elements
+    // before initializing Taggle again.
+    while (!!el.firstChild) {
+      el.removeChild(el.firstChild)
+    }
+
+    const projectName = repo.projectName
+    const tags = [].concat(repo.tags || [])
+
+    const taggle = new Taggle(el, {
+      tags,
+      duplicateTagClass: 'bounce',
+      onTagAdd: (evt, tag) => {
+        notifyUpdate()
+      },
+      onTagRemove: (evt, tag) => {
+        notifyUpdate()
+      }
+    })
+
+    setTimeout(() => {
+      $d(el, '.taggle_input').focus()
+    })
+
+    function notifyUpdate() {
+      const tags = taggle.getTagValues()
+
+      let evt = new CustomEvent('retagged', {detail: {projectName, tags}})
+      el.dispatchEvent(evt)
     }
   }
 
