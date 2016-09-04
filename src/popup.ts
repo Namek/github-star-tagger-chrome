@@ -116,6 +116,18 @@ class UnknownPage {
 document.addEventListener('DOMContentLoaded', function() {
   rivets.formatters['not'] = (val) => !val
   rivets.formatters['length'] = val => val.length
+  rivets.formatters['append'] = (val, arg) => val + arg
+
+  rivets.binders['attr-*'] = function(el, value) {
+		const attrToSet = this.type.substring(this.type.indexOf('-') + 1)
+
+		if (value || value === 0) {
+			el.setAttribute(attrToSet, value);
+		}
+		else {
+			el.removeAttribute(attrToSet);
+		}
+	}
 
   rivets.configure({
     handler: function(context, ev, binding) {

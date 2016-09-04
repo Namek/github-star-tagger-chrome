@@ -45,7 +45,10 @@
 
       <table class="repo-table">
         <tr rv-each-repo="filteredRepos" class="repo">
-          <td>{repo.projectName}</td>
+          <td>
+            <a rv-attr-href="'https://github.com/' | append repo.projectName"
+              target="_blank" class="repo-name">{repo.projectName}</a>
+          </td>
           <td>
             <button rv-if="repo.isTagged" rv-on-click="toggleTag">tag</button>
             <div rv-if="repo.isTagging">

@@ -46,3 +46,13 @@ h2 {
 .repo-table {
   height: 500px;
 }
+
+a.repo-name {
+  text-decoration: none;
+  color: rgb(64, 120, 192);
+  font-weight: bold;
+}
+
+a.repo-name:hover {
+  text-decoration: underline;
+}
