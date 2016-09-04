@@ -2,8 +2,8 @@ class ProjectPage {
   title: string = "Tags"
 
   constructor(appEl, params) {
-    const {user, project, wasStarred} = params
-    const projectName = `${user}/${project}`
+    const {user, repo, wasStarred} = params
+    const projectName = `${user}/${repo}`
 
     let tagsEl = $d(appEl, '.tags')
     let taggle = new Taggle(tagsEl, {
@@ -50,7 +50,7 @@ class StarsPage {
     })
   }
 
-  refreshFiltering() {
+  refreshFiltering = () => {
     this.filteredRepos = this.filterAndSort(this.repos)
   }
 
@@ -68,7 +68,13 @@ class StarsPage {
     const textFilter = this.textFilter
     const sortBy = this.sortBy
 
-    let wasFiltered = filter || textFilter
+    let shouldFilter = filter || textFilter
+
+    if (!sortBy && !shouldFilter) {
+      return els
+    }
+
+    els = [].concat(els)
 
     if (filter) {
       els = els.filter(this.getFilter(filter))
@@ -79,18 +85,21 @@ class StarsPage {
     }
 
     if (sortBy) {
-      if (wasFiltered) {
-        // create new array for sorting to prevent mutation of original array
-        els = [].concat(els)
-      }
-
       let sortFn
       if (sortBy == 'name') {
         sortFn = (a, b) => a.projectName.localeCompare(b.projectName)
       }
       else if (sortBy == 'tagCount') {
-        sortFn = (a, b) =>
-          (a.tags ? a.tags.length : 0) > (b.tags ? b.tags.length : 0)
+        sortFn = (a, b) => {
+          const bl = (b.tags ? b.tags.length : 0)
+          const al = (a.tags ? a.tags.length : 0)
+
+          if (bl !== 0 || al !== 0)
+            return bl - al
+
+          // when both items have no tags, then compare them by name
+          return a.projectName.localeCompare(b.projectName)
+        }
       }
       else
         throw new Error('unknown sort type: ${sortBy}')
@@ -101,9 +110,8 @@ class StarsPage {
     return els
   }
 
-  toggleTag(repo) {
-    log('taaaggg!')
-    log(repo)
+  toggleTag = (repo) => {
+    repo.isExpanded = !repo.isExpanded
   }
 }
 
@@ -114,26 +122,29 @@ class UnknownPage {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  rivets.formatters['not'] = (val) => !val
+  rivets.formatters['equals'] = (val, expectedVal) => val == expectedVal
+  rivets.formatters['not'] = val => !val
   rivets.formatters['length'] = val => val.length
   rivets.formatters['append'] = (val, arg) => val + arg
+  rivets.formatters.args = function(fn) {
+    let args = Array.prototype.slice.call(arguments, 1)
+    return () => fn.apply(null, args)
+  }
 
+  // replace '*' binder with 'attr-*' for improved readability in HTML + finding wrong bindings
+  rivets.binders['*'] = function() {
+    console.warn("Unknown binder: " + this.type);
+  }
   rivets.binders['attr-*'] = function(el, value) {
-		const attrToSet = this.type.substring(this.type.indexOf('-') + 1)
+    const attrToSet = this.type.substring(this.type.indexOf('-') + 1)
 
-		if (value || value === 0) {
-			el.setAttribute(attrToSet, value);
-		}
-		else {
-			el.removeAttribute(attrToSet);
-		}
-	}
-
-  rivets.configure({
-    handler: function(context, ev, binding) {
-      return this.call(binding.view.models, context, ev)
+    if (value || value === 0) {
+      el.setAttribute(attrToSet, value);
     }
-  })
+    else {
+      el.removeAttribute(attrToSet);
+    }
+  }
 
 
   isOnGitHubProjectPage().then(({user, repo}: IUserProject) => {

@@ -43,7 +43,7 @@ class DataStorage {
     this.loaded = new Promise((resolve, reject) => {
       try {
         chrome.storage.local.get(null, projects => {
-          this.projects = projects
+          this.projects = projects || {}
           resolve()
         })
       }
@@ -143,8 +143,8 @@ function getAllUserProjects(username): Promise<Array<{}>> {
               .then((data: any[]) => {
                 for (let repo of data) {
                   const projectName = `${repo.owner.login}/${repo.name}`
-                  const project = projects[name]
-                  const isTagged = project && project.tags && project.tags.length > 0
+                  const project = projects[projectName]
+                  const isTagged = !!project && !!project.tags && project.tags.length > 0
                   repos.push({
                     projectName,
                     repo: repo.name,

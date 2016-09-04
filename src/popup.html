@@ -15,6 +15,8 @@
 
   </head>
   <body>
+    <div id="logs"></div>
+
     <div id="app-unknown" class="loading" rv-class-loading="0">
       <p>Use this extension on GitHub <b>project page</b> or your <a href="https://github.com/stars" target="_blank"><b>Stars</b></a> page.</p>
     </div>
@@ -25,12 +27,12 @@
     </div>
 
     <div id="app-stars" class="loading" rv-class-loading="0">
-      <h2>Starred projects</h2>
+      <h2>Starred projects ({repos | length})</h2>
 
       <select rv-value="sortBy" rv-on-change="refreshFiltering">
         <option value="">Don't sort</option>
-        <option value="name">Name</option>
-        <option value="tagCount" rv-if="filter | not 'untagged'">Tag count</option>
+        <option value="name">Sort by Name</option>
+        <option value="tagCount" rv-if="filter | equals 'untagged' | not">Sort by Tag count</option>
       </select>
 
       <select rv-value="filter" rv-on-change="refreshFiltering">
@@ -39,27 +41,37 @@
         <option value="tagged">Tagged</option>
       </select>
 
-      <input type="text" rv-value="textFilter" rv-on-input="refreshFiltering">
+      <input type="text"
+        rv-value="textFilter" rv-on-input="refreshFiltering"
+        placeholder="Filter by tags and repo names"
+      >
 
-      {filteredRepos | length}
+      &#x2192; {filteredRepos | length}
 
-      <table class="repo-table">
-        <tr rv-each-repo="filteredRepos" class="repo">
-          <td>
-            <a rv-attr-href="'https://github.com/' | append repo.projectName"
-              target="_blank" class="repo-name">{repo.projectName}</a>
-          </td>
-          <td>
-            <button rv-if="repo.isTagged" rv-on-click="toggleTag">tag</button>
-            <div rv-if="repo.isTagging">
+      <div class="repo-table">
+        <div class="repo"
+          rv-each-repo="filteredRepos" class="repo"
+          rv-class-expanded="repo.isExpanded"
+          rv-on-click="toggleTag | args repo"
+        >
+          <span class="repo-name">{repo.projectName}</span>
+
+          <span class="repo-tags-count" rv-if="repo.tags | length">{repo.tags | length}</span>
+
+          <div class="repo-btns" rv-if="repo.isExpanded">
+            {repo.tags | length}
+            <span class="tag" rv-each-tag="tags">{tag}</span>
+
               taggle here! probably setup through custom component in rivets
-            </div>
-          </td>
-        </tr>
-      </table>
-    </div>
 
-    <div id="logs"></div>
+            <a
+              rv-attr-href="'https://github.com/' | append repo.projectName"
+              rv-attr-title="repo.projectName"
+              target="_blank">open</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
 

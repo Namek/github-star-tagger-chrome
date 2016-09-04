@@ -1,7 +1,12 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
   font-size: 100%;
-  width: 400px;
+  width: 450px;
+  user-select: none;
 }
 
 h2 {
@@ -42,17 +47,66 @@ h2 {
   }
 }
 
-
 .repo-table {
-  height: 500px;
+  max-height: 480px;
+  overflow-y: scroll;
+  padding: 10px 5px 10px 0;
 }
 
-a.repo-name {
+.repo {
+  max-width: 100%;
+  position: relative;
+  margin-top: 3px;
+  padding-left: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.repo-tags-count {
+  position: absolute;
+  top: 1px;
+  right: 5px;
+  padding: 0 7px;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  color: #333;
+  font-size: 8pt;
+}
+
+.repo:hover .repo-tags-count {
+  background: #eee;
+}
+
+.repo.expanded .repo-tags-count {
+  background:white;
+}
+
+.repo.expanded {
+  background: #efefef;
+  padding-bottom: 1px;
+}
+
+.repo.expanded .repo-tags-count {
+
+}
+
+.repo-btns {
+  border-radius: 5px;
+  background: white;
+  padding: 9px;
+  margin: 10px 7px 7px 1px;
+}
+
+.repo-name {
   text-decoration: none;
   color: rgb(64, 120, 192);
   font-weight: bold;
 }
 
-a.repo-name:hover {
+.repo:hover .repo-name {
   text-decoration: underline;
+}
+
+.repo.expanded .repo-name {
+  color: black;
 }
