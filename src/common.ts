@@ -7,26 +7,38 @@ const GET_TAGS = 'get_tags'
 const GET_ALL_USER_PROJECTS = 'get_all_user_projects'
 
 
-function isStarsPage(tabUrl) {
-  let match = ('' + tabUrl).match()
+declare interface IUserProject {
+  user: string
+  repo: string
+  projectName?: string
+  language?: string
+  tags?: string[]
+  isTagged?: boolean
+}
+
+
+function isStarsPage(tabUrl: string) {
   return /^https?:\/\/(www\.)?github.com\/stars(\?.*)?$/.test(tabUrl)
 }
 
-function isProjectPage(tabUrl) {
+function isProjectPage(tabUrl: string): IUserProject {
   let match = ('' + tabUrl).match(/^https?:\/\/(www\.)?github.com\/(.*)\/([^\/]*)/)
 
   if (match && match.length === 4 && match[0] && match[2] && match[3]) {
     return {
       user: match[2],
-      project: match[3]
-    }
+      repo: match[3]
+    } as IUserProject
   }
   else {
-    return false
+    return null
   }
 }
 
 class DataStorage {
+  loaded: Promise<{}>
+  projects: any
+
   constructor() {
     this.loaded = new Promise((resolve, reject) => {
       try {
@@ -90,9 +102,7 @@ class DataStorage {
 }
 
 class DataCache {
-  constructor() {
-    this.cache = {}
-  }
+  cache = {}
 
   get(key) {
     return new Promise((resolve, reject) => {
@@ -115,7 +125,7 @@ class DataCache {
 }
 
 // both starred and tagged (some could not appear on starred projects list)
-function getAllUserProjects(username) {
+function getAllUserProjects(username): Promise<Array<{}>> {
   return cache.get('all_repos')
     .then((repos) => {
       if (repos !== undefined)
@@ -130,7 +140,7 @@ function getAllUserProjects(username) {
           function downloadFurther() {
             pageNo++
             xhrJson('GET', `https://api.github.com/users/${username}/starred?page=${pageNo}&per_page=100`)
-              .then(data => {
+              .then((data: any[]) => {
                 for (let repo of data) {
                   const projectName = `${repo.owner.login}/${repo.name}`
                   const project = projects[name]
@@ -187,7 +197,7 @@ function xhrJson(method, url, data = undefined) {
   })
 }
 
-function $d() {
+function $d(...args) {
   let query = arguments[arguments.length == 1 ? 0 : 1];
   let el = arguments.length == 1 ? document : arguments[0];
   return el.querySelector(query);

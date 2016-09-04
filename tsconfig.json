@@ -1,0 +1,14 @@
+{
+  "files": [
+    "src/decls/chrome.d.ts",
+    "src/decls/rivets.d.ts",
+    "src/decls/taggle.d.ts",
+    "src/common.ts",
+    "src/background.ts",
+    "src/popup.ts"
+  ],
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "target": "es6"
+  }
+}

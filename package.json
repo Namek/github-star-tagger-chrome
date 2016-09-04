@@ -1,0 +1,36 @@
+{
+  "name": "github-star-tagger-chrome",
+  "version": "0.1.0",
+  "description": "Tag your Starred projects on GitHub - Chrome extension",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Namek/github-star-tagger-chrome.git"
+  },
+  "keywords": [
+    "chrome",
+    "extension",
+    "github",
+    "stars",
+    "tags"
+  ],
+  "author": {
+    "name": "Kamil Dąbrowski",
+    "url": "https://namekdev.net"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Namek/github-star-tagger-chrome/issues"
+  },
+  "homepage": "https://github.com/Namek/github-star-tagger-chrome#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^2.13.6"
+  }
+}

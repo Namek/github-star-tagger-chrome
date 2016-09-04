@@ -1,6 +1,7 @@
 class ProjectPage {
+  title: string = "Tags"
+
   constructor(appEl, params) {
-    this.title = "Tags"
     const {user, project, wasStarred} = params
     const projectName = `${user}/${project}`
 
@@ -35,12 +36,14 @@ class ProjectPage {
 }
 
 class StarsPage {
-  constructor({username}) {
-    this.title = "Stars"
-    this.filter = ''
-    this.sortBy = 'name'
-    this.filteredRepos = []
+  title = "Stars"
+  textFilter = ''
+  filter = ''
+  sortBy = 'name'
+  repos = [] as IUserProject[]
+  filteredRepos = [] as IUserProject[]
 
+  constructor({username}) {
     chrome.runtime.sendMessage({type: GET_ALL_USER_PROJECTS, username}, repos => {
       this.repos = repos
       this.refreshFiltering()
@@ -121,9 +124,9 @@ document.addEventListener('DOMContentLoaded', function() {
   })
 
 
-  isOnGitHubProjectPage().then(({user, project}) => {
+  isOnGitHubProjectPage().then(({user, repo}: IUserProject) => {
     executeCode(() => {
-      let btn = document.querySelector('form.unstarred button')
+      let btn = document.querySelector('form.unstarred button') as HTMLElement
       let isStarred = !btn.offsetHeight
 
       if (btn && !isStarred) {
@@ -135,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .then(wasStarred => {
       const appEl = $id('app-project')
-      const app = new ProjectPage(appEl, {user, project, wasStarred})
+      const app = new ProjectPage(appEl, {user, repo, wasStarred})
       rivets.bind(appEl, app)
     })
   }, () => {
@@ -150,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
 })
 
 
-function isOnGitHubProjectPage(callback) {
+function isOnGitHubProjectPage(): Promise<IUserProject> {
   var queryInfo = {
     active: true,
     currentWindow: true
@@ -162,7 +165,7 @@ function isOnGitHubProjectPage(callback) {
       let result = isProjectPage(tab.url)
 
       if (!!result)
-        resolve(result)
+        resolve(result as IUserProject)
       else
         reject()
     })

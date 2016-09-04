@@ -1,7 +1,3 @@
-const lastState = {
-  starredReposCount: 0
-}
-
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   console.log(request)
 
@@ -15,7 +11,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   }
   else if (request.type == GET_ALL_USER_PROJECTS) {
     getAllUserProjects(request.username).then(repos => {
-      lastState.starredReposCount = repos.length
       refreshState()
       sendResponse(repos)
     })
@@ -43,9 +38,9 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 function refreshState() {
   chrome.tabs.query({active: true, currentWindow: true}, ([tab]) => {
-    let project = isProjectPage(tab.url)
+    let project = isProjectPage(tab.url) as IUserProject
     if (!!project) {
-      storage.getProjectTagCount(`${project.user}/${project.project}`)
+      storage.getProjectTagCount(`${project.user}/${project.repo}`)
         .then(tagCount => {
           refreshBadge(true, `${tagCount}`)
         })
