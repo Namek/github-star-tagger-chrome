@@ -22,7 +22,7 @@ function isStarsPage(tabUrl: string) {
 }
 
 function isProjectPage(tabUrl: string): IUserProject {
-  let match = ('' + tabUrl).match(/^https?:\/\/(www\.)?github.com\/(.*)\/([^\/]*)/)
+  let match = ('' + tabUrl).match(/^https?:\/\/(www\.)?github.com\/([^\/]+)\/([^\/]+)/)
 
   if (match && match.length === 4 && match[0] && match[2] && match[3]) {
     return {
