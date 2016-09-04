@@ -30,8 +30,10 @@
   },
   "homepage": "https://github.com/Namek/github-star-tagger-chrome#readme",
   "devDependencies": {
+    "@types/kefir": "^3.2.28",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
+    "gulp-sequence": "^0.4.6",
     "gulp-typescript": "^2.13.6"
   }
 }
