@@ -104,6 +104,7 @@ declare interface ChromeTabs {
 declare interface ChromeBrowserAction {
   setBadgeText({text: string})
   setBadgeBackgroundColor({color: Array})
+  setIcon({path: string})
 }
 
 declare var chrome: Chrome

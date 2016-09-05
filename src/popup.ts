@@ -199,15 +199,23 @@ document.addEventListener('DOMContentLoaded', function() {
     executeCode(() => {
       let btn = document.querySelector('form.unstarred button') as HTMLElement
       let isStarred = !btn.offsetHeight
+      let wasStarred = isStarred
+      let justStarred = false
 
       if (btn && !isStarred) {
-        // TODO this works but makes too much noise in network
-        // btn.click()
+        btn.click()
+        isStarred = justStarred = true
       }
 
-      return isStarred
+      return {justStarred, wasStarred, isStarred}
     })
-    .then(wasStarred => {
+    .then(({justStarred, wasStarred, isStarred}) => {
+      if (justStarred) {
+        chrome.runtime.sendMessage({
+          type: JUST_STARRED
+        })
+      }
+
       const appEl = $id('app-project')
       const app = new ProjectPage(appEl, {user, project, wasStarred})
       rivets.bind(appEl, app)

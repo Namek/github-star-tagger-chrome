@@ -6,6 +6,9 @@ const SAVE_TAGS = 'save_tags'
 const GET_TAGS = 'get_tags'
 const GET_ALL_USER_PROJECTS = 'get_all_user_projects'
 
+// events
+const JUST_STARRED = 'just_starred'
+
 // cache
 const CACHE_ALL_REPOS = 'all_repos'
 
@@ -216,13 +219,13 @@ function $id(id) {
   return document.getElementById(id);
 }
 
-function executeCode(func) {
+function executeCode(func): Promise<any> {
   return new Promise((resolve, reject) => {
     try {
       chrome.tabs.executeScript({
         code: '(' + func.toString() + ')()'
       }, (result) => {
-        setTimeout(() => resolve(result))
+        setTimeout(() => resolve(result[0]))
       })
     } catch (err) {
       setTimeout(() => reject(err))
@@ -230,6 +233,14 @@ function executeCode(func) {
   })
 }
 
+function checkIsRepoPageStarred(): Promise<boolean> {
+  return executeCode(() => {
+    let btn = document.querySelector('form.unstarred button') as HTMLElement
+    let isStarred = !btn.offsetHeight
+
+    return isStarred
+  })
+}
 
 
 // globals

@@ -1,3 +1,6 @@
+const ICON_NORMAL = 'img/icon.png'
+const ICON_STARRED = 'img/icon_starred.png'
+
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   console.log(request)
 
@@ -33,6 +36,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       })
     })
   }
+  else if (request.type == JUST_STARRED) {
+    // just for a moment...
+    setIconToStarred()
+  }
   else {
     console.error(`unknown message: ${JSON.stringify(request)}`)
   }
@@ -56,26 +63,36 @@ function refreshState() {
     if (!!repo) {
       storage.getProjectTagCount(`${repo.user}/${repo.project}`)
         .then(tagCount => {
-          refreshBadge(true, `${tagCount}`)
+          refreshIcon(true, `${tagCount}`)
         })
     }
     else if (isStarsPage(tab.url)) {
-      getStarPageUsername().then(username => {
-        getAllUserProjects(username).then((repos) => {
-          refreshBadge(false, `${repos.length}`)
+      getStarPageUsername()
+        .then(username => {
+          getAllUserProjects(username).then((repos) => {
+            refreshIcon(false, `${repos.length}`)
+          })
         })
-      })
     }
     else {
-      refreshBadge(false, '')
+      refreshIcon(false, '')
     }
   })
 }
 
-function refreshBadge(isProject, text = '') {
+function refreshIcon(isProject: boolean, text: string = '') {
   const color = isProject ? [190, 190, 190, 230]/*gray*/ : [255, 160, 0, 230]/*yellow*/
   chrome.browserAction.setBadgeBackgroundColor({color})
+  chrome.browserAction.setBadgeText({ text })
 
-  console.log(`badge: ${text}`)
-  chrome.browserAction.setBadgeText({ text });
+  chrome.browserAction.setIcon({
+    path: ICON_NORMAL
+  })
+}
+
+function setIconToStarred() {
+  console.log('starrr!!!1')
+  chrome.browserAction.setIcon({
+    path: ICON_STARRED
+  })
 }
