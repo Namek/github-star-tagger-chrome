@@ -43,6 +43,8 @@ class StarsPage {
     chrome.runtime.sendMessage({type: GET_ALL_USER_PROJECTS, username}, repos => {
       this.repos = repos
       this.refreshFiltering()
+
+      $id('text-filter').focus()
     })
   }
 
