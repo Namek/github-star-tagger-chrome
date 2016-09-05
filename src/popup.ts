@@ -63,7 +63,7 @@ class StarsPage {
 
   filterAndSort(els) {
     const filter = this.filter
-    const textFilter = this.textFilter
+    let textFilter = this.textFilter
     const sortBy = this.sortBy
 
     let shouldFilter = filter || textFilter
@@ -79,7 +79,18 @@ class StarsPage {
     }
 
     if (!!textFilter) {
-      els = els.filter(el => el.name.indexOf(textFilter) >= 0)
+      let {tags, words} = textFilter.split(' ')
+        .map(t => t.trim())
+        .reduce((state, el, i, els) => {
+          const isTag = el[0] == '#'
+          state[isTag ? 'tags' : 'words'].push(isTag ? el.substr(1) : el)
+          return state
+        }, {tags: [], words: []})
+
+      els = els.filter(el =>
+        words.every(w => el.name.indexOf(w) >= 0)
+          && tags.every(t => el.tags.indexOf(t) >= 0)
+      )
     }
 
     if (sortBy) {
