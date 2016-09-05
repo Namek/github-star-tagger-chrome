@@ -6,7 +6,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     chrome.browserAction.setBadgeText({ text });
   }
   else if (request.type == GET_TAGS) {
-    storage.getProjectTags(request.projectName).then(sendResponse)
+    storage.getProjectTags(request.name).then(sendResponse)
     return true
   }
   else if (request.type == GET_ALL_USER_PROJECTS) {
@@ -17,13 +17,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     return true
   }
   else if (request.type == SAVE_TAGS) {
-    const {projectName, tags} = request
+    const {name, tags} = request
 
-    storage.setProjectTags(projectName, tags).then(() => {
+    storage.setProjectTags(name, tags).then(() => {
       // we also need to update cache!
-      cache.get(CACHE_ALL_REPOS).then((repos: IUserProject[]) => {
+      cache.get(CACHE_ALL_REPOS).then((repos: IRepo[]) => {
         for (let repo of repos) {
-          if (repo.projectName == projectName) {
+          if (repo.name == name) {
             repo.tags = tags
             break
           }
@@ -51,9 +51,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 function refreshState() {
   chrome.tabs.query({active: true, currentWindow: true}, ([tab]) => {
-    let project = isProjectPage(tab.url) as IUserProject
-    if (!!project) {
-      storage.getProjectTagCount(`${project.user}/${project.repo}`)
+    const repo = isProjectPage(tab.url) as IUserProject
+
+    if (!!repo) {
+      storage.getProjectTagCount(`${repo.user}/${repo.project}`)
         .then(tagCount => {
           refreshBadge(true, `${tagCount}`)
         })

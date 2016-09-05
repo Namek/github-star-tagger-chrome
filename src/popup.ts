@@ -2,8 +2,8 @@ class ProjectPage {
   title: string = "Tags"
 
   constructor(appEl, params) {
-    const {user, repo, wasStarred} = params
-    const projectName = `${user}/${repo}`
+    const {user, project, wasStarred} = params
+    const name = `${user}/${project}`
 
     let tagsEl = $d(appEl, '.tags')
     let taggle = new Taggle(tagsEl, {
@@ -16,20 +16,16 @@ class ProjectPage {
       }
     })
 
-    chrome.runtime.sendMessage({type: GET_TAGS, projectName}, tags => {
+    chrome.runtime.sendMessage({type: GET_TAGS, name}, tags => {
       taggle.add(tags)
       $d('.taggle_input').focus()
     })
 
-    function getTags() {
-      return taggle.getTags().values
-    }
-
     function save() {
       chrome.runtime.sendMessage({
         type: SAVE_TAGS,
-        projectName,
-        tags: getTags()
+        name,
+        tags: taggle.getTags().values
       })
     }
   }
@@ -40,8 +36,8 @@ class StarsPage {
   textFilter = ''
   filter = ''
   sortBy = 'name'
-  repos = [] as IUserProject[]
-  filteredRepos = [] as IUserProject[]
+  repos = [] as IRepo[]
+  filteredRepos = [] as IRepo[]
 
   constructor({username}) {
     chrome.runtime.sendMessage({type: GET_ALL_USER_PROJECTS, username}, repos => {
@@ -81,13 +77,13 @@ class StarsPage {
     }
 
     if (!!textFilter) {
-      els = els.filter(el => el.projectName.indexOf(textFilter) >= 0)
+      els = els.filter(el => el.name.indexOf(textFilter) >= 0)
     }
 
     if (sortBy) {
       let sortFn
       if (sortBy == 'name') {
-        sortFn = (a, b) => a.projectName.localeCompare(b.projectName)
+        sortFn = (a, b) => a.name.localeCompare(b.name)
       }
       else if (sortBy == 'tagCount') {
         sortFn = (a, b) => {
@@ -98,7 +94,7 @@ class StarsPage {
             return bl - al
 
           // when both items have no tags, then compare them by name
-          return a.projectName.localeCompare(b.projectName)
+          return a.name.localeCompare(b.name)
         }
       }
       else
@@ -110,21 +106,21 @@ class StarsPage {
     return els
   }
 
-  toggleTag = (repo) => {
+  toggleRepo = (repo) => {
     repo.isExpanded = !repo.isExpanded
   }
 
   saveRepoTags = (evt: CustomEvent, that: StarsPage) => {
-    const {projectName, tags} = evt.detail
+    const {name, tags} = evt.detail
 
     chrome.runtime.sendMessage({
       type: SAVE_TAGS,
-      projectName,
+      name,
       tags
     })
 
     for (let repo of that.repos) {
-      if (repo.projectName == projectName) {
+      if (repo.name == name) {
         repo.tags = tags
         break
       }
@@ -172,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
       el.removeChild(el.firstChild)
     }
 
-    const projectName = repo.projectName
+    const name = repo.name
     const tags = [].concat(repo.tags || [])
 
     const taggle = new Taggle(el, {
@@ -193,13 +189,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function notifyUpdate() {
       const tags = taggle.getTagValues()
 
-      let evt = new CustomEvent('retagged', {detail: {projectName, tags}})
+      let evt = new CustomEvent('retagged', {detail: {name, tags}})
       el.dispatchEvent(evt)
     }
   }
 
 
-  isOnGitHubProjectPage().then(({user, repo}: IUserProject) => {
+  isOnGitHubProjectPage().then(({user, project}: IUserProject) => {
     executeCode(() => {
       let btn = document.querySelector('form.unstarred button') as HTMLElement
       let isStarred = !btn.offsetHeight
@@ -213,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .then(wasStarred => {
       const appEl = $id('app-project')
-      const app = new ProjectPage(appEl, {user, repo, wasStarred})
+      const app = new ProjectPage(appEl, {user, project, wasStarred})
       rivets.bind(appEl, app)
     })
   }, () => {

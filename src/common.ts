@@ -9,11 +9,13 @@ const GET_ALL_USER_PROJECTS = 'get_all_user_projects'
 // cache
 const CACHE_ALL_REPOS = 'all_repos'
 
-
 declare interface IUserProject {
   user: string
-  repo: string
-  projectName?: string
+  project: string
+}
+
+declare interface IRepo extends IUserProject {
+  name?: string
   language?: string
   tags?: string[]
   isTagged?: boolean
@@ -30,7 +32,7 @@ function isProjectPage(tabUrl: string): IUserProject {
   if (match && match.length === 4 && match[0] && match[2] && match[3]) {
     return {
       user: match[2],
-      repo: match[3]
+      project: match[3]
     } as IUserProject
   }
   else {
@@ -64,12 +66,12 @@ class DataStorage {
     })
   }
 
-  getProject(projectName) {
+  getProject(name) {
     return this.loaded.then(() => {
-      let project = this.projects[projectName]
+      let project = this.projects[name]
 
       if (!project) {
-        project = this.projects[projectName] = {tags: []}
+        project = this.projects[name] = {tags: []}
       }
       return project
     })
@@ -79,24 +81,24 @@ class DataStorage {
     return this.loaded.then(() => this.projects)
   }
 
-  getProjectTags(projectName) {
+  getProjectTags(name) {
     return this.loaded.then(() =>
-      this.getProject(projectName)
+      this.getProject(name)
         .then(project => project.tags || [])
     )
   }
 
-  getProjectTagCount(projectName) {
+  getProjectTagCount(name) {
     return this.loaded.then(() =>
-      this.getProject(projectName).then(project =>
+      this.getProject(name).then(project =>
         project.tags ? project.tags.length : 0
       )
     )
   }
 
-  setProjectTags(projectName, tags) {
+  setProjectTags(name, tags) {
     return this.loaded.then(() =>
-      this.getProject(projectName).then(project => {
+      this.getProject(name).then(project => {
         project.tags = tags
         return this.save()
       })
@@ -128,7 +130,7 @@ class DataCache {
 }
 
 // both starred and tagged (some could not appear on starred projects list)
-function getAllUserProjects(username): Promise<Array<{}>> {
+function getAllUserProjects(username): Promise<Array<IRepo>> {
   return cache.get(CACHE_ALL_REPOS)
     .then((repos) => {
       if (repos !== undefined)
@@ -145,11 +147,11 @@ function getAllUserProjects(username): Promise<Array<{}>> {
             xhrJson('GET', `https://api.github.com/users/${username}/starred?page=${pageNo}&per_page=100`)
               .then((data: any[]) => {
                 for (let repo of data) {
-                  const projectName = `${repo.owner.login}/${repo.name}`
-                  const project = projects[projectName]
+                  const name = `${repo.owner.login}/${repo.name}`
+                  const project = projects[name]
                   const isTagged = !!project && !!project.tags && project.tags.length > 0
                   repos.push({
-                    projectName,
+                    name,
                     repo: repo.name,
                     user: repo.owner.login,
                     language: repo.language,
