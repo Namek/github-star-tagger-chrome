@@ -24,16 +24,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
     storage.setProjectTags(name, tags).then(() => {
       // we also need to update cache!
-      cache.get(CACHE_ALL_REPOS).then((repos: IRepo[]) => {
-        for (let repo of repos) {
+      let cachedRepos: IRepo[] = cache.get(CACHE_ALL_REPOS)
+      if (!!cachedRepos) {
+        for (let repo of cachedRepos) {
           if (repo.name == name) {
             repo.tags = tags
             break
           }
         }
-
-        refreshState()
-      })
+      }
+      refreshState()
     })
   }
   else if (request.type == JUST_STARRED) {

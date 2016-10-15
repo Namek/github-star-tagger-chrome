@@ -113,70 +113,66 @@ class DataCache {
   cache = {}
 
   get(key) {
-    return new Promise((resolve, reject) => {
-      try {
-        resolve(this.cache[key].val)
-      }
-      catch (err) {
-        resolve(undefined)
-      }
-    })
+    let c = this.cache[key]
+    return !c ? undefined : c.val
   }
 
   set(key, val) {
-    if (!this.cache) {
-      this.cache = {}
-    }
-
     this.cache[key] = {val}
   }
 }
 
-// both starred and tagged (some could not appear on starred projects list)
+// downloads or gets cached projects - both starred and tagged
 function getAllUserProjects(username): Promise<Array<IRepo>> {
-  return cache.get(CACHE_ALL_REPOS)
-    .then((repos) => {
-      if (repos !== undefined)
-        return repos
+  let cachedRepos = cache.get(CACHE_ALL_REPOS)
+  return new Promise((resolve, reject) => {
+    if (cachedRepos !== undefined)
+      return cachedRepos
 
-      return new Promise((resolve, reject) =>
-        storage.getAllProjects().then(projects => {
-          const PER_PAGE = 100
-          let pageNo = 0
-          let repos = []
+    downloadStarredRepos(username)
+      .then(resolve)
+      .catch(reject)
+  })
+}
 
-          function downloadFurther() {
-            pageNo++
-            xhrJson('GET', `https://api.github.com/users/${username}/starred?page=${pageNo}&per_page=100`)
-              .then((data: any[]) => {
-                for (let repo of data) {
-                  const name = `${repo.owner.login}/${repo.name}`
-                  const project = projects[name]
-                  const isTagged = !!project && !!project.tags && project.tags.length > 0
-                  repos.push({
-                    name,
-                    repo: repo.name,
-                    user: repo.owner.login,
-                    language: repo.language,
-                    tags: (project && project.tags) ? project.tags : [],
-                    isTagged
-                  })
-                }
+function downloadStarredRepos(username) {
+  return new Promise((resolve, reject) =>
+    storage.getAllProjects().then(projects => {
+      const PER_PAGE = 100
+      let pageNo = 0
+      let repos = []
 
-                if (repos.length % PER_PAGE === 0)
-                  downloadFurther()
-                else
-                  resolve(repos)
+      function downloadFurther() {
+        pageNo++
+        xhrJson('GET', `https://api.github.com/users/${username}/starred?page=${pageNo}&per_page=100`)
+          .then((data: any[]) => {
+            for (let repo of data) {
+              const name = `${repo.owner.login}/${repo.name}`
+              const project = projects[name]
+              const isTagged = !!project && !!project.tags && project.tags.length > 0
+              repos.push({
+                name,
+                repo: repo.name,
+                user: repo.owner.login,
+                language: repo.language,
+                tags: (project && project.tags) ? project.tags : [],
+                isTagged
               })
-              .catch(reject)
-          }
-          downloadFurther()
-        })
-      ).then(repos => {
-        cache.set('all_repos', repos)
-        return repos
-      })
+            }
+
+            if (repos.length % PER_PAGE === 0)
+              downloadFurther()
+            else
+              resolve(repos)
+          })
+          .catch(reject)
+      }
+      downloadFurther()
     })
+  ).then(repos => {
+    cache.set(CACHE_ALL_REPOS, repos)
+    return repos
+  })
 }
 
 function getStarPageUsername() {
